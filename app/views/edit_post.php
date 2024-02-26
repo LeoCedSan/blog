@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <title>Editar Post</title>
     <!-- Asegúrate de incluir tu archivo CSS para estilos aquí si es necesario -->
-    <link rel="stylesheet" href="./app/public/css/styles.css">
+    <link rel="stylesheet" href="./app/public/css/form.css">
 </head>
 <body>
     <div class="container">
         <h1>Editar Post</h1>
+        <p>Por favor, edita el post a continuación y haz clic en "Actualizar Post" para guardar los cambios.</p>
+        <div  id="Fmr">
         <form action="/blog/post" method="post">
             <input type="hidden" name="id" value="<?= $postItem['id']; ?>">
             <div class="form-group">
@@ -22,6 +24,7 @@
             <button type="submit">Actualizar Post</button>
             <a href="/blog">Cancelar</a>
         </form>
+        </div>
     </div>
 </body>
 </html>

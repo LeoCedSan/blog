@@ -1,0 +1,92 @@
+form{
+    padding: 20px;
+    background: #f4f4f4;
+    margin: 20px 0;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+form label{
+    display: block;
+    margin: 10px 0 5px 0;
+}
+
+form input[type="text"],
+form input[type="email"],
+form textarea{
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+form input[type="submit"]{
+    padding: 10px 20px;
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form input[type="submit"]:hover{
+    background: #444;
+}
+
+.error{
+    color: red;
+}
+
+.success{
+    color: green;
+}
+
+.form-group{
+    margin-bottom: 15px;
+}
+
+.form-group label{
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input{
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.form-group input[type="submit"]{
+    background-color: blueviolet;
+    color: white;
+    cursor: pointer;
+}
+
+.form-group input[type="submit"]:hover{
+    background-color: #4CAF50;
+}
+
+.form-group input[type="submit"]:active{
+    background-color: #45a049;
+}
+
+.form-group input[type="submit"]:focus{
+    outline: none;
+}
+
+button{
+    padding: 10px 20px;
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+a{
+    text-decoration: none;
+    color: #333;
+}
