@@ -6,42 +6,43 @@ require_once './app/models/Post.php';
 class PostController
 {
     // Método para mostrar la página principal con todos los posts
-    public function index()
+   public function index()
+{
+    // Instanciar el modelo Post
+    $post = new Post();
+
+    // Establecer la cantidad de posts por página
+    $postsPerPage = 9;
+
+    // Obtener la página actual
+    $currentPage = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+
+    // Llamar al método readWithPagination() del modelo para obtener los posts paginados
+    $postArr = $post->readWithPagination($currentPage, $postsPerPage);
+
+    // Obtener el total de posts para calcular el número total de páginas
+    $totalPosts = $this->getTotalPosts();
+    $totalPages = ceil($totalPosts / $postsPerPage);
+
+    // Verificar si hay posts
+    if ($postArr->rowCount() > 0) {
+        // Cargar la vista correspondiente y pasarle los posts, total de páginas y página actual
+        require_once './app/views/home.php';
+    } else {
+        // No hay posts, cargar una vista diferente o mostrar un mensaje
+        echo "No se encontraron posts.";
+    }
+}
+
+    
+    public function getTotalPosts()
     {
-        // Instanciar el modelo Post
-        $post = new Post();
-
-        // Llamar al método read() del modelo para obtener todos los posts
-        $stmt = $post->read();
-        $postCount = $stmt->rowCount();
-
-        // Verificar si hay posts
-        if ($postCount > 0) {
-            // Array para almacenar los posts
-            $postArr = array();
-
-            // Recorrer todos los registros
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                extract($row);
-
-                $postItem = array(
-                    'id' => $id,
-                    'title' => $title,
-                    'content' => html_entity_decode($content),
-                    'created_at' => $created_at
-                );
-
-                array_push($postArr, $postItem);
-            }
-
-            // Cargar la vista correspondiente y pasarle los posts
-            require_once './app/views/home.php';
-        } else {
-            // No hay posts, cargar una vista diferente o mostrar un mensaje
-            echo "No se encontraron posts.";
-        }
+    $post = new Post();
+    $stmt = $post->read(); // Assuming read() fetches all posts without pagination
+    return $stmt->rowCount();
     }
 
+    
     // Método para mostrar un post específico por su ID
     public function show($id)
     {
@@ -83,13 +84,13 @@ class PostController
         $id = isset($_POST['id']) ? $_POST['id'] : null;
         $title = $_POST['title'];
         $content = $_POST['content'];
-
+        $user_id = 1; // El ID del usuario actualmente autenticado
         if ($id) {
             // Actualizar el post existente
             $post->update($id, $title, $content);
         } else {
             // Crear un nuevo post
-            $post->create($title, $content);
+            $post->create($title, $content, $user_id);
         }
 
         // Redireccionar al inicio o a la lista de posts
@@ -145,9 +146,6 @@ class PostController
      */
     public function create()
     {
-
-        
-        // Cargar la vista de creación
-        require_once './app/views/create_post.php'; 
+        require_once './app/views/create_post.php';
     }
 }

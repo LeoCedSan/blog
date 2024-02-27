@@ -48,9 +48,9 @@ switch ($request) {
             echo "ID del post no especificado para eliminar.";
         }
         break;
-    default:
+        default:
         // Página 404
         http_response_code(404);
-        require __DIR__ . '/views/404.php';
-        break;
+        require __DIR__ . '/app/views/404.php';
+        exit; // Make sure to exit to prevent further execution
 }

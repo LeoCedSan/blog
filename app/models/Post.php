@@ -14,7 +14,7 @@ class Post
     public $title;
     public $content;
     public $publish_date;
-    private $author_id;
+    private $user_id;
 
     // Constructor con $db como conexión a la base de datos
     public function __construct()
@@ -24,19 +24,41 @@ class Post
     }
 
     // Método para leer todos los posts
-    public function read()
-    {
-        // Consulta para seleccionar todos los registros
-        $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at DESC";
+   // Método para leer todos los posts con paginación
+public function readWithPagination($page = 1, $perPage = 9)
+{
+    // Calcular el offset
+    $offset = ($page - 1) * $perPage;
 
-        // Preparar declaración de consulta
-        $stmt = $this->conn->prepare($query);
+    // Consulta para seleccionar registros con paginación
+    $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at ASC LIMIT :offset, :perPage";
 
-        // Ejecutar consulta
-        $stmt->execute();
+    // Preparar declaración de consulta
+    $stmt = $this->conn->prepare($query);
 
-        return $stmt;
-    }
+    // Vincular valores de paginación
+    $stmt->bindParam(":offset", $offset, PDO::PARAM_INT);
+    $stmt->bindParam(":perPage", $perPage, PDO::PARAM_INT);
+
+    // Ejecutar consulta
+    $stmt->execute();
+
+    return $stmt;
+}
+public function read()
+{
+    // Consulta para seleccionar todos los registros
+    $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at ASC";
+
+    // Preparar declaración de consulta
+    $stmt = $this->conn->prepare($query);
+
+    // Ejecutar consulta
+    $stmt->execute();
+
+    return $stmt;
+}
+
 
     // Método para leer un solo post por ID
     public function readOne($id)
@@ -62,7 +84,7 @@ class Post
             $this->content = $row['content'];
             $this->publish_date = $row['created_at'];
         }
-        
+
     }
 
     /**
@@ -70,25 +92,27 @@ class Post
      * Este método maneja tanto la creación de un nuevo post como la actualización de un post existente.
      * @param string $title
      * @param string $content
-     * @return boolean
+     * @param int $user_id
+     * @return bool
      */
-    public function create($title, $content)
+    public function create($title, $content, $user_id)
     {
-        // Consulta para insertar un registro
-        $query = "INSERT INTO " . $this->table_name . " (author_id, title, content) VALUES (1,:title, :content)";
+        // Query to insert a record
+        $query = "INSERT INTO " . $this->table_name . " (title, content, user_id) VALUES (:title, :content, :user_id)";
 
-        // Preparar declaración
+        // Prepare the statement
         $stmt = $this->conn->prepare($query);
 
-        // Sanitizar
-        $this->title = htmlspecialchars(strip_tags($title));
-        $this->content = htmlspecialchars(strip_tags($content));
+        // Sanitize input
+        $title = htmlspecialchars(strip_tags($title));
+        $content = htmlspecialchars(strip_tags($content));
 
-        // Vincular valores
-        $stmt->bindParam(":title", $this->title);
-        $stmt->bindParam(":content", $this->content);
+        // Bind values
+        $stmt->bindParam(":title", $title);
+        $stmt->bindParam(":content", $content);
+        $stmt->bindParam(":user_id", $user_id);
 
-        // Ejecutar
+        // Execute the statement
         if ($stmt->execute()) {
             return true;
         }
@@ -97,39 +121,38 @@ class Post
     }
 
     /**
-     * Método para actualizar un post
-     * Este método maneja tanto la creación de un nuevo post como la actualización de un post existente.
+     * Method to update a post
+     * Handles both the creation of a new post and the update of an existing post.
      * @param int $id
      * @param string $title
      * @param string $content
-     * @return boolean
+     * @return bool
      */
     public function update($id, $title, $content)
     {
-        // Consulta para actualizar un registro
+        // Query to update a record
         $query = "UPDATE " . $this->table_name . " SET title = :title, content = :content WHERE id = :id";
 
-        // Preparar declaración
+        // Prepare the statement
         $stmt = $this->conn->prepare($query);
 
-        // Sanitizar
-        $this->id = htmlspecialchars(strip_tags($id));
-        $this->title = htmlspecialchars(strip_tags($title));
-        $this->content = htmlspecialchars(strip_tags($content));
+        // Sanitize input
+        $id = htmlspecialchars(strip_tags($id));
+        $title = htmlspecialchars(strip_tags($title));
+        $content = htmlspecialchars(strip_tags($content));
 
-        // Vincular valores
-        $stmt->bindParam(":id", $this->id, PDO::PARAM_INT);
-        $stmt->bindParam(":title", $this->title);
-        $stmt->bindParam(":content", $this->content);
+        // Bind values
+        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+        $stmt->bindParam(":title", $title);
+        $stmt->bindParam(":content", $content);
 
-        // Ejecutar
+        // Execute the statement
         if ($stmt->execute()) {
             return true;
         }
 
         return false;
     }
-
     /**
      * Método para eliminar un post
      * @param int $id
