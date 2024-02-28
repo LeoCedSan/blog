@@ -4,15 +4,18 @@
 // 1. Configuración de la base de datos
 require_once './app/config/Database.php';
 
+// 2. Create instances of controllers
+require_once __DIR__ . '/app/controllers/PostController.php';
+$controller = new PostController();
+
+require_once __DIR__ . '/app/controllers/AuthController.php';
+$authController = new AuthController();
+
 // 3. Analiza la URL para obtener la ruta y los parámetros
 $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $query   = $_SERVER['QUERY_STRING'];
 
-// 4. Instancia el controlador
-require_once __DIR__ . '/app/controllers/PostController.php';
-$controller = new PostController();
-
-// 5. Routing
+// 4. Routing
 switch ($request) {
     case '/blog/':
         $controller->index();
@@ -48,7 +51,18 @@ switch ($request) {
             echo "ID del post no especificado para eliminar.";
         }
         break;
-        default:
+
+    // New cases for authentication
+    case '/blog/login':
+        $authController->login();
+        break;
+
+    case '/blog/login/authenticate':
+        $authController->authenticate();
+        break;
+
+
+    default:
         // Página 404
         http_response_code(404);
         require __DIR__ . '/app/views/404.php';

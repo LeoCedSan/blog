@@ -31,7 +31,7 @@ public function readWithPagination($page = 1, $perPage = 9)
     $offset = ($page - 1) * $perPage;
 
     // Consulta para seleccionar registros con paginación
-    $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at ASC LIMIT :offset, :perPage";
+    $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at DESC LIMIT :offset, :perPage";
 
     // Preparar declaración de consulta
     $stmt = $this->conn->prepare($query);
