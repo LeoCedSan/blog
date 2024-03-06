@@ -6,43 +6,34 @@ require_once './app/models/Post.php';
 class PostController
 {
     // Método para mostrar la página principal con todos los posts
-   public function index()
-{
-    // Instanciar el modelo Post
-    $post = new Post();
-
-    // Establecer la cantidad de posts por página
-    $postsPerPage = 9;
-
-    // Obtener la página actual
-    $currentPage = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-
-    // Llamar al método readWithPagination() del modelo para obtener los posts paginados
-    $postArr = $post->readWithPagination($currentPage, $postsPerPage);
-
-    // Obtener el total de posts para calcular el número total de páginas
-    $totalPosts = $this->getTotalPosts();
-    $totalPages = ceil($totalPosts / $postsPerPage);
-
-    // Verificar si hay posts
-    if ($postArr->rowCount() > 0) {
-        // Cargar la vista correspondiente y pasarle los posts, total de páginas y página actual
-        require_once './app/views/home.php';
-    } else {
-        // No hay posts, cargar una vista diferente o mostrar un mensaje
-        echo "No se encontraron posts.";
-    }
-}
-
-    
-    public function getTotalPosts()
+    public function index()
     {
-    $post = new Post();
-    $stmt = $post->read(); // Assuming read() fetches all posts without pagination
-    return $stmt->rowCount();
+        // Instanciar el modelo Post
+        $post = new Post();
+
+        // Establecer la cantidad de posts por página
+        $postsPerPage = 9;
+
+        // Obtener la página actual
+        $currentPage = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+
+        // Llamar al método readWithPagination() del modelo para obtener los posts paginados
+        $postArr = $post->readWithPagination($currentPage, $postsPerPage);
+
+        // Obtener el total de posts para calcular el número total de páginas
+        $totalPosts = $this->getTotalPosts();
+        $totalPages = ceil($totalPosts / $postsPerPage);
+
+        // Verificar si hay posts
+        if ($postArr->rowCount() > 0) {
+            // Cargar la vista correspondiente y pasarle los posts, total de páginas y página actual
+            require_once './app/views/home.php';
+        } else {
+            // No hay posts, cargar una vista diferente o mostrar un mensaje
+            echo "No se encontraron posts.";
+        }
     }
 
-    
     // Método para mostrar un post específico por su ID
     public function show($id)
     {
@@ -61,7 +52,7 @@ class PostController
             );
 
             // Obtener los comentarios del post
-            $comments = $post->getComments();
+            $postItem['comments'] = $post->getCommentsForPost($postItem['id']);
 
             // Cargar la vista correspondiente y pasarle el post y los comentarios
             require_once './app/views/post.php';
@@ -70,6 +61,17 @@ class PostController
             echo "Post no encontrado.";
         }
     }
+
+    // Método para obtener el total de posts
+    public function getTotalPosts()
+    {
+        $post = new Post();
+        $stmt = $post->read(); // Assuming read() fetches all posts without pagination
+        return $stmt->rowCount();
+    }
+
+    
+    // Método para mostrar un post específico por su I
 
     /**
      * Método para guardar un post
@@ -148,4 +150,34 @@ class PostController
     {
         require_once './app/views/create_post.php';
     }
+
+    // Dentro de PostController.php
+public function addComment($postId, $userId, $content)
+{
+    $post = new Post();
+    $success = $post->addComment($postId, $userId, $content);
+
+    if ($success) {
+        // Redirigir de vuelta al post después de agregar el comentario
+        header("Location: /blog/post/show/{$postId}");
+    } else {
+        // Manejar el error de alguna manera (puede ser útil mostrar un mensaje de error en la vista)
+        echo "Error al agregar el comentario.";
+    }
+}
+
+public function deleteComment($commentId, $postId)
+{
+    $post = new Post();
+    $success = $post->deleteComment($commentId);
+
+    if ($success) {
+        // Redirigir de vuelta al post después de eliminar el comentario
+        header("Location: /blog/post/show/{$postId}");
+    } else {
+        // Manejar el error de alguna manera (puede ser útil mostrar un mensaje de error en la vista)
+        echo "Error al eliminar el comentario.";
+    }
+}
+
 }

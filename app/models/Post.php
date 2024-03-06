@@ -21,44 +21,46 @@ class Post
     {
         $database = new Database();
         $this->conn = $database->getConnection();
+        $this->user_id = 0; // Asigna un valor por defecto o ajusta según tus necesidades
     }
 
-    // Método para leer todos los posts
-   // Método para leer todos los posts con paginación
-public function readWithPagination($page = 1, $perPage = 9)
-{
-    // Calcular el offset
-    $offset = ($page - 1) * $perPage;
+    // Métodos de lectura de posts
 
-    // Consulta para seleccionar registros con paginación
-    $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at DESC LIMIT :offset, :perPage";
+    // Método para leer todos los posts con paginación
+    public function readWithPagination($page = 1, $perPage = 9)
+    {
+        // Calcular el offset
+        $offset = ($page - 1) * $perPage;
 
-    // Preparar declaración de consulta
-    $stmt = $this->conn->prepare($query);
+        // Consulta para seleccionar registros con paginación
+        $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at DESC LIMIT :offset, :perPage";
 
-    // Vincular valores de paginación
-    $stmt->bindParam(":offset", $offset, PDO::PARAM_INT);
-    $stmt->bindParam(":perPage", $perPage, PDO::PARAM_INT);
+        // Preparar declaración de consulta
+        $stmt = $this->conn->prepare($query);
 
-    // Ejecutar consulta
-    $stmt->execute();
+        // Vincular valores de paginación
+        $stmt->bindParam(":offset", $offset, PDO::PARAM_INT);
+        $stmt->bindParam(":perPage", $perPage, PDO::PARAM_INT);
 
-    return $stmt;
-}
-public function read()
-{
-    // Consulta para seleccionar todos los registros
-    $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at ASC";
+        // Ejecutar consulta
+        $stmt->execute();
 
-    // Preparar declaración de consulta
-    $stmt = $this->conn->prepare($query);
+        return $stmt;
+    }
 
-    // Ejecutar consulta
-    $stmt->execute();
+    public function read()
+    {
+        // Consulta para seleccionar todos los registros
+        $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at ASC";
 
-    return $stmt;
-}
+        // Preparar declaración de consulta
+        $stmt = $this->conn->prepare($query);
 
+        // Ejecutar consulta
+        $stmt->execute();
+
+        return $stmt;
+    }
 
     // Método para leer un solo post por ID
     public function readOne($id)
@@ -84,15 +86,15 @@ public function read()
             $this->content = $row['content'];
             $this->publish_date = $row['created_at'];
         }
-
     }
+
+    // Métodos de manipulación de posts
 
     /**
      * Método para crear un nuevo post
      * Este método maneja tanto la creación de un nuevo post como la actualización de un post existente.
      * @param string $title
      * @param string $content
-     * @param int $user_id
      * @return bool
      */
     public function create($title, $content, $user_id)
@@ -113,16 +115,12 @@ public function read()
         $stmt->bindParam(":user_id", $user_id);
 
         // Execute the statement
-        if ($stmt->execute()) {
-            return true;
-        }
-
-        return false;
+        return $stmt->execute();
     }
 
     /**
-     * Method to update a post
-     * Handles both the creation of a new post and the update of an existing post.
+     * Método para actualizar un post
+     * Maneja tanto la creación de un nuevo post como la actualización de un post existente.
      * @param int $id
      * @param string $title
      * @param string $content
@@ -147,12 +145,9 @@ public function read()
         $stmt->bindParam(":content", $content);
 
         // Execute the statement
-        if ($stmt->execute()) {
-            return true;
-        }
-
-        return false;
+        return $stmt->execute();
     }
+
     /**
      * Método para eliminar un post
      * @param int $id
@@ -173,37 +168,49 @@ public function read()
         $stmt->bindParam(":id", $this->id, PDO::PARAM_INT);
 
         // Ejecutar
-        if ($stmt->execute()) {
-            return true;
-        }
-
-        return false;
+        return $stmt->execute();
     }
-
 
     /**
      * Método para obtener los comentarios de un post
      * @return array
      */
-    public function getComments()
+    public function getCommentsForPost($id)
     {
         // Consulta para obtener los comentarios de un post
         $query = "SELECT * FROM comments WHERE post_id = :post_id";
 
-        // Preparar declaración
+        // Preparar la declaración
         $stmt = $this->conn->prepare($query);
 
-        // Vincular valor
-        $stmt->bindParam(":post_id", $this->id, PDO::PARAM_INT);
+        // Vincular el valor
+        $stmt->bindParam(":post_id", $id, PDO::PARAM_INT);
 
-        // Ejecutar
+        // Ejecutar la consulta
         $stmt->execute();
 
         // Obtener resultados
-        $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $comments;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+    public function addComment($postId, $userId, $content)
+{
+    $query = "INSERT INTO comments (post_id, user_id, content) VALUES (:post_id, :user_id, :content)";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(":post_id", $postId, PDO::PARAM_INT);
+    $stmt->bindParam(":user_id", $userId, PDO::PARAM_INT);
+    $stmt->bindParam(":content", $content, PDO::PARAM_STR);
+
+    return $stmt->execute();
 }
 
+public function deleteComment($commentId)
+{
+    $query = "DELETE FROM comments WHERE id = :comment_id";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(":comment_id", $commentId, PDO::PARAM_INT);
 
+    return $stmt->execute();
+}
+}
