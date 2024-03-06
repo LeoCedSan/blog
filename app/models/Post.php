@@ -194,23 +194,41 @@ class Post
     }
 
 
+   /* * Método para agregar un comentario a un post
+     * @param int $postId
+     * @param int $userId
+     * @param string $content
+     * @return bool
+     */
     public function addComment($postId, $userId, $content)
-{
-    $query = "INSERT INTO comments (post_id, user_id, content) VALUES (:post_id, :user_id, :content)";
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(":post_id", $postId, PDO::PARAM_INT);
-    $stmt->bindParam(":user_id", $userId, PDO::PARAM_INT);
-    $stmt->bindParam(":content", $content, PDO::PARAM_STR);
+    {
+        $query = "INSERT INTO comments (post_id, user_id, content) VALUES (:post_id, :user_id, :content)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":post_id", $postId, PDO::PARAM_INT);
+        $stmt->bindParam(":user_id", $userId, PDO::PARAM_INT);
+        $stmt->bindParam(":content", $content, PDO::PARAM_STR);
 
-    return $stmt->execute();
-}
+        return $stmt->execute();
+    }
 
-public function deleteComment($commentId)
-{
-    $query = "DELETE FROM comments WHERE id = :comment_id";
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(":comment_id", $commentId, PDO::PARAM_INT);
+    /**
+     * Método para eliminar un comentario de un post
+     * @param int $commentId
+     * @return bool
+     */
+    public function deleteComment($commentId)
+    {
+        $query = "DELETE FROM comments WHERE id = :comment_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":comment_id", $commentId, PDO::PARAM_INT);
 
-    return $stmt->execute();
-}
+        return $stmt->execute();
+    }
+
+    /**
+     * Método para obtener los comentarios de un post
+     * @param int $postId
+     * @return array
+     */
+ 
 }

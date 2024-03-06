@@ -20,10 +20,10 @@
         </article>
 
         <div class="comment-form">
-    <form action="/blog/post/addComment/<?= $postItem['id'] ?>" method="post">
+        <form action="/blog/post/addComment/1" method="post">
         <label for="comment">Hacer un comentario:</label>
         <textarea id="comment" name="comment" required></textarea>
-        <button type="submit">Enviar comentario</button>
+        <button type="submit">Agregar Comentario</button>
     </form>
 </div>
 

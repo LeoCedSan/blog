@@ -60,8 +60,43 @@ switch ($request) {
     case '/blog/login/authenticate':
         $authController->authenticate();
         break;
-
-
+        
+        case '/blog/post/deleteComment':
+            $params = explode('/', $request);
+            $id = end($params);
+            if (!empty($id)) {
+                $controller->deleteComment($id, $postId);
+            } else {
+                echo "ID del comentario no especificado para eliminar.";
+            }
+            break;
+        
+            case '/blog/post/addComment':
+            $params = explode('/', $request);
+        
+            // Asegúrate de que haya al menos 3 segmentos en la URL (ruta base + 'post' + 'addComment')
+            if (count($params) >= 3) {
+                // El ID del post debería ser el tercer segmento
+                $id = $params[2];
+        
+                // Asegúrate de que el ID no esté vacío
+                if (!empty($id)) {
+                    $author = $_POST['author']; // Ajusta según tu formulario HTML
+                    $content = $_POST['content']; // Ajusta según tu formulario HTML
+        
+                    if (!empty($author) && !empty($content)) {
+                        $controller->addComment($id, $author, $content);
+                    } else {
+                        echo "Faltan parámetros para agregar un comentario al post.";
+                    }
+                } else {
+                    echo "ID del post no especificado para agregar un comentario.";
+                }
+            } else {
+                echo "Ruta no válida para agregar un comentario al post.";
+            }
+            break;
+            
     default:
         // Página 404
         http_response_code(404);
